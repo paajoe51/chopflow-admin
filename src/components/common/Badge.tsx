@@ -2,17 +2,20 @@ import React from 'react';
 import { OrderStatus } from '../../types';
 
 interface StatusBadgeProps {
-  status: OrderStatus | 'READY' | 'PREPARING' | 'UNAVAILABLE' | 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Connected' | 'Offline' | 'Paper Out' | 'active' | 'trial' | 'suspended';
+  status: OrderStatus | 'READY' | 'PREPARING' | 'UNAVAILABLE' | 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Connected' | 'Offline' | 'Paper Out' | 'pending' | 'active' | 'trial' | 'suspended';
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-200';
 
   switch (status) {
+    case 'pending':
     case 'Pending':
-    case 'trial':
     case 'PREPARING':
       badgeStyle = 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      break;
+    case 'trial':
+      badgeStyle = 'bg-purple-500/10 text-purple-600 border-purple-500/20';
       break;
     case 'Confirmed':
     case 'Preparing':

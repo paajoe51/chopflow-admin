@@ -351,7 +351,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     );
   };
 
-  const updateTenantStatus = async (id: string, status: 'active' | 'trial' | 'suspended') => {
+  const updateTenantStatus = async (id: string, status: 'pending' | 'active' | 'trial' | 'suspended') => {
     try {
       await api.updateTenantStatus(id, status);
     } catch (e) {
@@ -360,6 +360,56 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     setTenants((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status } : t))
+    );
+  };
+
+  const approveTenant = async (id: string, planId?: string) => {
+    const defaultPlan = planId || 'plan-starter';
+    const trialExpiry = new Date();
+    trialExpiry.setDate(trialExpiry.getDate() + 7);
+    const expiryStr = trialExpiry.toISOString().split('T')[0];
+
+    try {
+      await api.approveTenant(id, defaultPlan);
+    } catch (e) {
+      console.warn('Backend API approve failed, updating locally:', e);
+    }
+
+    setTenants((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              status: 'trial',
+              planId: defaultPlan,
+              expiryDate: expiryStr,
+              rejection_reason: undefined,
+              rejectionReason: undefined,
+            }
+          : t
+      )
+    );
+  };
+
+  const rejectTenant = async (id: string, reason?: string) => {
+    const rejectionNote = reason || 'Establishment details did not meet ChopFlow partner requirements.';
+    try {
+      await api.rejectTenant(id, rejectionNote);
+    } catch (e) {
+      console.warn('Backend API reject failed, updating locally:', e);
+    }
+
+    setTenants((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              status: 'suspended',
+              rejection_reason: rejectionNote,
+              rejectionReason: rejectionNote,
+            }
+          : t
+      )
     );
   };
 
@@ -392,6 +442,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const totalTenants = tenants.length;
   const activeTenants = tenants.filter((t) => t.status === 'active').length;
   const trialTenants = tenants.filter((t) => t.status === 'trial').length;
+  const pendingTenants = tenants.filter((t) => t.status === 'pending').length;
   const suspendedTenants = tenants.filter((t) => t.status === 'suspended').length;
   const mrr = tenants
     .filter((t) => t.status === 'active')
@@ -404,6 +455,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     totalTenants,
     activeTenants,
     trialTenants,
+    pendingTenants,
     suspendedTenants,
     mrr,
     totalOrders: 142850,
@@ -426,6 +478,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         addTenant,
         updateTenant,
         updateTenantStatus,
+        approveTenant,
+        rejectTenant,
         deleteTenant,
         savePlan,
       }}

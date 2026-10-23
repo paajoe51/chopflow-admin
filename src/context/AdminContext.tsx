@@ -13,6 +13,7 @@ interface AdminDashboardMetrics {
   totalTenants: number;
   activeTenants: number;
   trialTenants: number;
+  pendingTenants: number;
   suspendedTenants: number;
   mrr: number;
   totalOrders: number;
@@ -32,7 +33,9 @@ interface AdminContextType {
   refreshData: () => Promise<void>;
   addTenant: (tenantData: any) => Promise<Tenant>;
   updateTenant: (id: string, tenantData: any) => Promise<void>;
-  updateTenantStatus: (id: string, status: 'active' | 'trial' | 'suspended') => Promise<void>;
+  updateTenantStatus: (id: string, status: 'pending' | 'active' | 'trial' | 'suspended') => Promise<void>;
+  approveTenant: (id: string, planId?: string) => Promise<void>;
+  rejectTenant: (id: string, reason?: string) => Promise<void>;
   deleteTenant: (id: string) => Promise<void>;
   savePlan: (plan: SubscriptionPlan) => Promise<void>;
 }

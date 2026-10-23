@@ -109,8 +109,14 @@ class AdminApiClient {
   public deleteTenant = (id: string) =>
     this.request(`/admin/tenants/${id}`, 'DELETE');
 
-  public updateTenantStatus = (id: string, status: 'active' | 'trial' | 'suspended') =>
+  public updateTenantStatus = (id: string, status: 'pending' | 'active' | 'trial' | 'suspended') =>
     this.request(`/admin/tenants/${id}/status`, 'PUT', { status });
+
+  public approveTenant = (id: string, planId?: string) =>
+    this.request(`/admin/tenants/${id}/approve`, 'PUT', { planId });
+
+  public rejectTenant = (id: string, reason?: string) =>
+    this.request(`/admin/tenants/${id}/reject`, 'PUT', { reason });
 
   public getPlans = () =>
     this.request('/admin/plans', 'GET');

@@ -54,8 +54,37 @@ export const TenantDetailsModal: React.FC<TenantDetailsModalProps> = ({
                 <StatusBadge status={tenant.status} />
               </div>
               <p className="text-slate-500">Tenant ID Code: <strong className="font-mono text-slate-900">{tenant.code}</strong></p>
+              <p className="text-slate-500">Establishment Type: <strong className="uppercase text-slate-900">{tenant.establishment_type || tenant.establishmentType || 'Fast Food'}</strong> {tenant.year_established || tenant.yearEstablished ? `(Est. ${tenant.year_established || tenant.yearEstablished})` : ''}</p>
               <p className="text-slate-500">Owner: <strong className="text-slate-900">{tenant.ownerName}</strong> ({tenant.phone})</p>
+              {(tenant.manager_name || tenant.managerName) && (
+                <p className="text-slate-500">Registered by Manager: <strong className="text-slate-900">{tenant.manager_name || tenant.managerName}</strong> ({tenant.manager_phone || tenant.managerPhone || 'N/A'})</p>
+              )}
               <p className="text-slate-500">Location: <strong className="text-slate-900">{tenant.address}, {tenant.city}, {tenant.region}, {tenant.country}</strong></p>
+              
+              {/* Services offered badges */}
+              {(tenant.services || (tenant as any).services) && (
+                <div className="pt-1">
+                  <span className="text-[11px] font-bold text-slate-600 block mb-1">Services Offered:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {(Array.isArray(tenant.services) 
+                      ? tenant.services 
+                      : typeof tenant.services === 'string' 
+                        ? JSON.parse(tenant.services || '[]') 
+                        : []
+                    ).map((srv: string, idx: number) => (
+                      <span key={idx} className="px-2 py-0.5 bg-orange-50 text-orange-700 border border-orange-200 rounded-md text-[10px] font-semibold">
+                        {srv}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(tenant.rejection_reason || tenant.rejectionReason) && (
+                <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-[11px]">
+                  <strong>Rejection Note:</strong> {tenant.rejection_reason || tenant.rejectionReason}
+                </div>
+              )}
             </div>
           </div>
         )}
